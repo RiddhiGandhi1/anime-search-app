@@ -222,6 +222,7 @@ export default {
                     status: item.status || "N/A",
                     image: item.images.jpg.image_url,
                     url: item.url,
+                    episodes: item.episodes
                 }));
 
                 this.paginationOptions.totalItems =

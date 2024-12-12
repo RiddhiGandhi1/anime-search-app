@@ -2,16 +2,21 @@
     <v-data-table hide-default-footer disable-pagination :items="animeDataWithFavorites" :headers="headers"
         :loading="loading">
 
-        <!-- Image Slot -->
-        <template v-slot:[`item.image`]="{ item }">
-            <v-img :src="item.image" class="rounded-circle mt-2 mb-2" max-height="50" max-width="50" />
-        </template>
-
-        <!-- Title Slot -->
+        <!-- Image, title, and episodes Slot -->
         <template v-slot:[`item.url`]="{ item }">
-            <a :href="item.url" target="_blank" rel="noopener noreferrer">
-                {{ item.title }}
-            </a>
+            <div class="d-flex align-items-center">
+                <v-img :src="item.image" class="rounded-circle mr-3 mt-3 mb-3" max-height="50" max-width="50" />
+
+                <div class="mt-3 mb-3">
+                    <a :href="item.url" target="_blank" rel="noopener noreferrer">
+                        {{ item.title }}
+                    </a>
+
+                    <div v-if="item.episodes" class="text-caption mt-1 text--secondary">
+                        Episodes: {{ item.episodes }}
+                    </div>
+                </div>
+            </div>
         </template>
 
         <!-- Status Slot -->
@@ -40,7 +45,6 @@ export default {
     data() {
         return {
             headers: [
-                { text: "Image", value: "image", sortable: false },
                 { text: "Title", value: "url" },
                 { text: "Type", value: "type", sortable: false },
                 { text: "Rating", value: "rating" },
