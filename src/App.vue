@@ -1,21 +1,12 @@
 <template>
-  <v-app>
-    <v-main>
-      <v-container>
-        <HomePage />
-        <!-- Updated component name -->
-      </v-container>
-    </v-main>
-  </v-app>
+    <v-app>
+        <!-- Navigation -->
+        <v-toolbar>
+            <v-btn to="/" text>Anime List</v-btn>
+            <v-btn to="/favorites" text>Favorites</v-btn>
+        </v-toolbar>
+
+        <!-- Main content -->
+        <router-view />
+    </v-app>
 </template>
-
-<script>
-import HomePage from "./views/HomePage.vue"; // Updated to HomePage
-
-export default {
-  name: "App",
-  components: {
-    HomePage, // Updated component name
-  },
-};
-</script>

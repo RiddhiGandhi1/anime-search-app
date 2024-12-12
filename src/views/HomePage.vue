@@ -1,69 +1,75 @@
 <template>
-    <v-row>
-        <!-- Filters -->
-        <v-col cols="12">
-            <!-- Status Tabs -->
-            <v-tabs v-model="selectedStatus" show-arrows>
-                <v-tab value="">All</v-tab>
-                <v-tab value="1">Airing</v-tab>
-                <v-tab value="2">Complete</v-tab>
-                <v-tab value="3">Upcoming</v-tab>
-            </v-tabs>
+    <v-container fluid>
+        <v-row>
+            <!-- Filters -->
+            <v-col cols="12">
+                <!-- Status Tabs -->
+                <v-tabs v-model="selectedStatus" show-arrows color="indigo" slider-color="orange">
+                    <v-tab value="">All</v-tab>
+                    <v-tab value="1">Airing</v-tab>
+                    <v-tab value="2">Complete</v-tab>
+                    <v-tab value="3">Upcoming</v-tab>
+                </v-tabs>
 
-            <v-row>
-                <!-- Search Input -->
-                <v-col cols="6">
-                    <v-text-field v-model="searchQuery" label="Search Anime" @input="debounceSearch" debounce="500" />
-                </v-col>
+                <v-row class="my-4">
+                    <!-- Search Input -->
+                    <v-col cols="6">
+                        <v-text-field v-model="searchQuery" label="Search Anime" @input="debounceSearch" debounce="500"
+                            color="indigo" outlined dense />
+                    </v-col>
 
-                <!-- Type Dropdown -->
-                <v-col cols="6 mt-5">
-                    <v-select v-model="selectedType" :items="typeOptions" label="Filter by Type" item-value="value"
-                        item-text="text" dense />
-                </v-col>
-            </v-row>
-        </v-col>
+                    <!-- Type Dropdown -->
+                    <v-col cols="6">
+                        <v-select v-model="selectedType" :items="typeOptions" label="Filter by Type" item-value="value"
+                            item-text="text" color="indigo" dense outlined />
+                    </v-col>
+                </v-row>
+            </v-col>
 
-        <!-- Applied Filters -->
-        <v-col cols="12" v-if="hasFilters">
-            <div class="applied-filters">
-                <span v-if="searchQuery" class="filter-chip">
-                    Search: {{ searchQuery }}
-                    <v-icon small class="remove-icon" @click="removeFilter('searchQuery')">mdi-close</v-icon>
-                </span>
+            <!-- Applied Filters -->
+            <v-col cols="12" v-if="hasFilters">
+                <div class="applied-filters">
+                    <span v-if="searchQuery" class="filter-chip">
+                        Search: {{ searchQuery }}
+                        <v-icon small class="remove-icon" @click="removeFilter('searchQuery')">mdi-close-circle</v-icon>
+                    </span>
 
-                <span v-if="selectedStatus" class="filter-chip">
-                    Status: {{ getStatusDisplay() }}
-                    <v-icon small class="remove-icon" @click="removeFilter('selectedStatus')">mdi-close</v-icon>
-                </span>
+                    <span v-if="selectedStatus" class="filter-chip">
+                        Status: {{ getStatusDisplay() }}
+                        <v-icon small class="remove-icon"
+                            @click="removeFilter('selectedStatus')">mdi-close-circle</v-icon>
+                    </span>
 
-                <span v-if="selectedType" class="filter-chip">
-                    Type: {{ getTypeDisplay() }}
-                    <v-icon small class="remove-icon" @click="removeFilter('selectedType')">mdi-close</v-icon>
-                </span>
+                    <span v-if="selectedType" class="filter-chip">
+                        Type: {{ getTypeDisplay() }}
+                        <v-icon small class="remove-icon"
+                            @click="removeFilter('selectedType')">mdi-close-circle</v-icon>
+                    </span>
 
-                <v-btn text small color="error" @click="clearAllFilters">Clear All Filters</v-btn>
-            </div>
-        </v-col>
+                    <v-btn text small color="error" @click="clearAllFilters">Clear All Filters</v-btn>
+                </div>
+            </v-col>
 
-        <!-- Anime Results -->
-        <v-col cols="12">
-            <AnimeTable :animeData="animeData" :options="paginationOptions" @update:options="updatePaginationOptions" />
-            <AnimeLoader v-if="loading" />
-        </v-col>
+            <!-- Anime Results -->
+            <v-col cols="12">
+                <AnimeTable :animeData="animeData" :options="paginationOptions"
+                    @update:options="updatePaginationOptions" />
+                <AnimeLoader v-if="loading" />
+            </v-col>
 
-        <!-- Pagination and Rows per Page -->
-        <v-col cols="12" class="d-flex justify-space-between align-center">
-            <v-select v-model="paginationOptions.itemsPerPage" :items="[5, 10, 20]" label="Rows per page" dense
-                hide-details style="max-width: 150px" />
-            <v-pagination v-model="paginationOptions.page" :length="totalPages" :total-visible="5"
-                prev-icon="mdi-chevron-left" next-icon="mdi-chevron-right" />
-            <div>
-                Showing {{ startItem }} - {{ endItem }} of
-                {{ paginationOptions.totalItems }}
-            </div>
-        </v-col>
-    </v-row>
+            <!-- Pagination and Rows per Page -->
+            <v-col cols="12" class="d-flex justify-space-between align-center mt-4">
+                <v-select v-model="paginationOptions.itemsPerPage" :items="[5, 10, 20]" label="Rows per page" dense
+                    hide-details style="max-width: 150px" color="indigo" />
+                <v-pagination v-model="paginationOptions.page" :length="totalPages" :total-visible="5"
+                    prev-icon="mdi-chevron-left" next-icon="mdi-chevron-right" color="indigo" />
+                <div>
+                    Showing {{ startItem }} - {{ endItem }} of
+                    {{ paginationOptions.totalItems }}
+                </div>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <script>
@@ -248,23 +254,40 @@ export default {
 <style scoped>
 .applied-filters {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .filter-chip {
     background-color: #f1f1f1;
-    border-radius: 16px;
-    padding: 5px 10px;
+    border-radius: 20px;
+    padding: 6px 14px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
 }
 
 .remove-icon {
     cursor: pointer;
     color: #ff5252;
+}
+
+.filter-chip:hover {
+    background-color: #eeeeee;
+    transform: scale(1.05);
+}
+
+.v-btn {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.v-select {
+    font-size: 14px;
 }
 </style>
