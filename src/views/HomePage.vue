@@ -4,10 +4,10 @@
         <v-col cols="12">
             <!-- Status Tabs -->
             <v-tabs v-model="selectedStatus" show-arrows>
+                <v-tab value="">All</v-tab>
                 <v-tab value="1">Airing</v-tab>
                 <v-tab value="2">Complete</v-tab>
                 <v-tab value="3">Upcoming</v-tab>
-                <v-tab value="">All</v-tab>
             </v-tabs>
 
             <v-row>
@@ -17,11 +17,33 @@
                 </v-col>
 
                 <!-- Type Dropdown -->
-                <v-col cols="6">
+                <v-col cols="6 mt-5">
                     <v-select v-model="selectedType" :items="typeOptions" label="Filter by Type" item-value="value"
                         item-text="text" dense />
                 </v-col>
             </v-row>
+        </v-col>
+
+        <!-- Applied Filters -->
+        <v-col cols="12" v-if="hasFilters">
+            <div class="applied-filters">
+                <span v-if="searchQuery" class="filter-chip">
+                    Search: {{ searchQuery }}
+                    <v-icon small class="remove-icon" @click="removeFilter('searchQuery')">mdi-close</v-icon>
+                </span>
+
+                <span v-if="selectedStatus" class="filter-chip">
+                    Status: {{ getStatusDisplay() }}
+                    <v-icon small class="remove-icon" @click="removeFilter('selectedStatus')">mdi-close</v-icon>
+                </span>
+
+                <span v-if="selectedType" class="filter-chip">
+                    Type: {{ getTypeDisplay() }}
+                    <v-icon small class="remove-icon" @click="removeFilter('selectedType')">mdi-close</v-icon>
+                </span>
+
+                <v-btn text small color="error" @click="clearAllFilters">Clear All Filters</v-btn>
+            </div>
         </v-col>
 
         <!-- Anime Results -->
@@ -100,13 +122,33 @@ export default {
                 this.paginationOptions.totalItems
             );
         },
+        hasFilters() {
+            return this.searchQuery || this.selectedStatus || this.selectedType;
+        },
     },
     watch: {
-        searchQuery: "fetchAnime",
-        selectedStatus: "fetchAnime",
-        selectedType: "fetchAnime",
-        "paginationOptions.page": "fetchAnime",
-        "paginationOptions.itemsPerPage": "fetchAnime",
+        searchQuery() {
+            this.paginationOptions.page = 1;
+            this.fetchAnime();
+        },
+        selectedStatus() {
+            this.paginationOptions.page = 1;
+            this.fetchAnime();
+        },
+        selectedType() {
+            this.paginationOptions.page = 1;
+            this.fetchAnime();
+        },
+        "paginationOptions.page"() {
+            if (this.paginationOptions.page > this.totalPages) {
+                this.paginationOptions.page = 1;
+            }
+            this.fetchAnime();
+        },
+        "paginationOptions.itemsPerPage"() {
+            this.paginationOptions.page = 1;
+            this.fetchAnime();
+        },
     },
     mounted() {
         this.fetchAnime();
@@ -119,16 +161,36 @@ export default {
             }, 500);
         },
         getStatusForApi() {
+            if (!this.selectedStatus) {
+                return undefined;
+            }
+
             switch (this.selectedStatus) {
                 case 0:
-                    return "airing";
-                case 1:
-                    return "complete";
-                case 2:
-                    return "upcoming";
-                default:
                     return undefined;
+                case 1:
+                    return "airing";
+                case 2:
+                    return "complete";
+                default:
+                    return "upcoming";
             }
+        },
+        getStatusDisplay() {
+            switch (this.selectedStatus) {
+                case 0:
+                    return "All";
+                case 1:
+                    return "Airing";
+                case 2:
+                    return "Complete";
+                default:
+                    return "Upcoming";
+            }
+        },
+        getTypeDisplay() {
+            const type = this.typeOptions.find(option => option.value === this.selectedType);
+            return type ? type.text : "";
         },
         async fetchAnime() {
             this.loading = true;
@@ -139,6 +201,7 @@ export default {
                 limit: this.paginationOptions.itemsPerPage || 5,
                 status: this.getStatusForApi(),
                 type: this.selectedType || undefined,
+                sort: this.searchQuery || this.selectedStatus || this.selectedType ? undefined : "desc",
             };
 
             try {
@@ -150,7 +213,7 @@ export default {
                     title: item.title,
                     type: item.type,
                     rating: item.rating || "N/A",
-                    episodes: item.episodes || "N/A",
+                    status: item.status || "N/A",
                     image: item.images.jpg.image_url,
                     url: item.url,
                 }));
@@ -169,6 +232,39 @@ export default {
         updatePaginationOptions(updatedOptions) {
             this.paginationOptions = updatedOptions;
         },
+        removeFilter(filter) {
+            this[filter] = "";
+        },
+        clearAllFilters() {
+            this.searchQuery = "";
+            this.selectedStatus = "";
+            this.selectedType = "";
+            this.fetchAnime();
+        }
     },
 };
 </script>
+
+<style scoped>
+.applied-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.filter-chip {
+    background-color: #f1f1f1;
+    border-radius: 16px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.remove-icon {
+    cursor: pointer;
+    color: #ff5252;
+}
+</style>
